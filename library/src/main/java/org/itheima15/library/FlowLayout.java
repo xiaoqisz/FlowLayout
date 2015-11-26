@@ -19,8 +19,11 @@ import java.util.List;
 public class FlowLayout
         extends ViewGroup
 {
-
     private List<Line> mLines = new ArrayList<>();//布局管理的行
+    private Line mCurrentLine;//记录当前行的
+
+    private int mHorizontalSpace = 15;//水平的间隙
+    private int mVerticalSpace   = 15;//垂直的间隙
 
     public FlowLayout(Context context) {
         this(context, null);
@@ -32,8 +35,62 @@ public class FlowLayout
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        //TODO:
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+
+        int childMaxWidth = width - getPaddingLeft() - getPaddingRight();
+
+        //1.测量孩子
+        int count = getChildCount();
+
+        for (int i = 0; i < count; i++) {
+            View child = getChildAt(i);
+            if (child.getVisibility() == View.GONE) {
+                continue;
+            }
+
+            //测量孩子
+            measureChild(child, widthMeasureSpec, heightMeasureSpec);
+
+            //将孩子添加记录到行中
+            if (mCurrentLine == null) {
+                //说明一行都没有
+                mCurrentLine = new Line(childMaxWidth, mHorizontalSpace);
+
+                //将line添加到布局中
+                mLines.add(mCurrentLine);
+
+                //将child添加到line中
+                mCurrentLine.addChild(child);
+            } else {
+                //判断line是否可以添加child
+                if (mCurrentLine.canAdd(child)) {
+                    //可以添加
+                    mCurrentLine.addChild(child);
+                } else {
+                    //添加不进来,line放不下去
+                    //换行
+                    mCurrentLine = new Line(childMaxWidth, mHorizontalSpace);
+                    //将line添加到布局中
+                    mLines.add(mCurrentLine);
+                    //将child添加到line中
+                    mCurrentLine.addChild(child);
+                }
+            }
+        }
+
+        //2.设置自己的宽高
+        int height = getPaddingTop() + getPaddingBottom();//所有的行的高度和 + 行和行间垂直的间隙和 + paddingTop+ paddingBottom TODO:
+
+        for (int i = 0; i < mLines.size(); i++) {
+            Line line = mLines.get(i);
+            height += line.mLineHeight;
+
+            if (i != mLines.size() - 1) {
+                height += mVerticalSpace;
+            }
+        }
+        setMeasuredDimension(width, height);
     }
 
     @Override

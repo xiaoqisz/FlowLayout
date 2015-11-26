@@ -80,7 +80,7 @@ public class MainActivity
             //			view.setTextSize(rdm.nextInt(16) + 10);
             view.setTextSize(14);
 
-            mFlowLayout.addView(view);
+            mFlowLayout.addView(view);//触发重绘
         }
 
     }
