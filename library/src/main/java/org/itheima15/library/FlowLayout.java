@@ -35,6 +35,11 @@ public class FlowLayout
         super(context, attrs);
     }
 
+    public void setSpace(int horizontal, int vertical) {
+        this.mHorizontalSpace = horizontal;
+        this.mVerticalSpace = vertical;
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         Log.d(TAG, "onMeasure");
@@ -198,13 +203,31 @@ public class FlowLayout
          */
         public void layout(int left, int top) {
 
+            //判断是否有多余的空间
+            int extraWidth = mLineMaxWidth - mLineUsedWidth;
+            //获得每个可以分到的平均值
+            int avgWidth = (int) (extraWidth * 1f / mViews.size() + 0.5f);
+
             for (int i = 0; i < mViews.size(); i++) {
                 View child      = mViews.get(i);
                 int  childWidth = child.getMeasuredWidth();
                 int  childHight = child.getMeasuredHeight();
 
+                //先不去布局,先期望孩子的宽高
+                if (avgWidth > 0) {
+                    int childWidthSpec = MeasureSpec.makeMeasureSpec(childWidth + avgWidth,
+                                                                     MeasureSpec.EXACTLY);
+                    int childHeightSpec = MeasureSpec.makeMeasureSpec(childHight,
+                                                                      MeasureSpec.EXACTLY);
+                    child.measure(childWidthSpec, childHeightSpec);
+
+                    //获取测量后新的值
+                    childWidth = child.getMeasuredWidth();
+                    childHight = child.getMeasuredHeight();
+                }
+
                 int l = left;
-                int t = top;
+                int t = (int) (top + (mLineHeight - childHight) / 2f + 0.5f);
                 int r = l + childWidth;
                 int b = t + childHight;
 

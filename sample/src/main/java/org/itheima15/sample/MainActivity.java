@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import org.itheima15.library.FlowLayout;
 
+import java.util.Random;
+
 
 public class MainActivity
         extends AppCompatActivity
@@ -67,7 +69,12 @@ public class MainActivity
 
         mFlowLayout = (FlowLayout) findViewById(R.id.flowlayout);
 
+        mFlowLayout.setPadding(10, 10, 10, 10);
+        mFlowLayout.setSpace(10, 10);
+
         //添加textView显示
+
+        Random rdm = new Random();
 
         for (int i = 0; i < mDatas.length; i++) {
 
@@ -77,8 +84,8 @@ public class MainActivity
             view.setTextColor(Color.WHITE);
             view.setPadding(5, 5, 5, 5);
             view.setGravity(Gravity.CENTER);
-            //			view.setTextSize(rdm.nextInt(16) + 10);
-            view.setTextSize(14);
+            view.setTextSize(rdm.nextInt(16) + 10);
+            //            view.setTextSize(14);
 
             mFlowLayout.addView(view);//触发重绘
         }
