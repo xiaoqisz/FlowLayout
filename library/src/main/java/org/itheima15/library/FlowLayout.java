@@ -2,6 +2,7 @@ package org.itheima15.library;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,7 +20,8 @@ import java.util.List;
 public class FlowLayout
         extends ViewGroup
 {
-    private List<Line> mLines = new ArrayList<>();//布局管理的行
+    private static final String     TAG    = "FlowLayout";
+    private              List<Line> mLines = new ArrayList<>();//布局管理的行
     private Line mCurrentLine;//记录当前行的
 
     private int mHorizontalSpace = 15;//水平的间隙
@@ -35,6 +37,10 @@ public class FlowLayout
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        Log.d(TAG, "onMeasure");
+        //清空 lines
+        mLines.clear();
+        mCurrentLine = null;
 
         int width = MeasureSpec.getSize(widthMeasureSpec);
 
@@ -95,7 +101,23 @@ public class FlowLayout
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        //TODO:
+
+        //测量孩子
+        //        int count = getChildCount();
+        //        for (int i = 0; i < count; i++) {
+        //            View child = getChildAt(i);
+        //        }
+
+        //测量line
+        int top = getPaddingTop();
+        for (int i = 0; i < mLines.size(); i++) {
+            Line line = mLines.get(i);
+
+            line.layout(getPaddingLeft(), top);
+
+            top += line.mLineHeight + mVerticalSpace;
+        }
+
     }
 
 
@@ -171,6 +193,28 @@ public class FlowLayout
             mViews.add(view);
         }
 
+        /**
+         * 布局的方法
+         */
+        public void layout(int left, int top) {
+
+            for (int i = 0; i < mViews.size(); i++) {
+                View child      = mViews.get(i);
+                int  childWidth = child.getMeasuredWidth();
+                int  childHight = child.getMeasuredHeight();
+
+                int l = left;
+                int t = top;
+                int r = l + childWidth;
+                int b = t + childHight;
+
+                child.layout(l, t, r, b);
+
+                //为下一个child记录left的值
+                left += childWidth + mSpace;
+            }
+
+        }
     }
 
 }
